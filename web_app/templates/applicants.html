@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Список поступающих 2024 года
+{% endblock %}
+
+
+{% block content %}
+    <!-- Header Start -->
+        <div class="container-fluid bg-breadcrumb">
+            <div class="container text-center py-5" style="max-width: 900px;">
+                <h1 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">Список абитуриентов</h1>
+            </div>
+        </div>
+    <!-- Header End -->
+
+    <!-- List Start -->
+        <div class="container-fluid blog py-5">
+            <div class="container py-5">
+                <div class="section-title mb-5 wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+                    <p class="mb-0">Здесь отображены списки поступающих в УлГТУ в 2024 году. Поиск происходит по ФИО.
+                        Таблицу можно преобразовать,  например, сформировать рейтинг по количеству баллов.
+                        Помимо этого, есть возможность сохранить результат в разных форматах.
+                    </p>
+                </div>
+                {% if current_user.is_authenticated %}
+                    <div class="col-12 text-center wow fadeInUp" data-wow-delay="0.2s">
+                        <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="">Добавить пользователя</a>
+                    </div>
+                {% endif %}
+            </div>
+            <table class="display" id="table_results" width="100%">
+                <thead style="color:black">
+                    <th>ID</th>
+                    <th>ФИО</th>
+                    <th>Факультет</th>
+                    <th>Специальность</th>
+                    <th align="center">Экзамен 1</th>
+                    <th align="center">Экзамен 2</th>
+                    <th align="center">Экзамен 3</th>
+                    <th>Инд.достижение 1</th>
+                    <th>Инд.достижение 2</th>
+                    <th>Сумма</th>
+                    <th class="no-sort"></th>
+                </thead>
+                <tbody>
+                    {% for a in applicants %}
+                      <tr>
+                          <td style="color:blue">{{ a.id }}</td>
+                          <td style="color:black"><b>{{ a.fullname }}</b></td>
+                          <td><b>{{ a.specialty.faculty.name }}</b></td>
+                          <td>{{ a.specialty.name }}</td>
+                          <td style="color:green">{{ a.ege1 }}</td>
+                          <td style="color:green">{{ a.ege2 }}</td>
+                          <td style="color:green">{{ a.ege3 }}</td>
+                          <td style="color:purple">{{ a.individualachievements1.score }}</td>
+                          <td style="color:purple">{{ a.individualachievements2.score }}</td>
+                          <td style="color:orange"><b>{{ a.ege1 + a.ege2 + a.ege3 + a.individualachievements1.score|int }}</b></td>
+                          <td>
+                              {% if current_user.is_authenticated %}
+                                    <dialog id="favDialog">
+                                        <form method="dialog">
+                                            <section>
+                                                <p>
+                                                    <label for="favAnimal"
+                                                        >Favorite animal:</label
+                                                    >
+                                                    <select id="favAnimal">
+                                                        <option></option>
+                                                        <option>Brine shrimp</option>
+                                                        <option>Red panda</option>
+                                                        <option>Spider monkey</option>
+                                                    </select>
+                                                </p>
+                                            </section>
+                                            <menu>
+                                                <button id="cancel" type="reset">Cancel</button>
+                                                <button type="submit">Confirm</button>
+                                            </menu>
+                                        </form>
+                                    </dialog>
+                                  <a href="#" id="updateDetails"><i class="fas fa-edit"></i></a>
+
+
+                                  <a href="{{ url_for('applicant_delete', a_id=a.id) }}"><i class="fa fa-trash" aria-hidden="true" style="color: #ff0000;"></i></a>
+                              {% endif %}
+                          </td>
+                      </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <th>ID</th>
+                    <th>ФИО</th>
+                    <th>Факультет</th>
+                    <th>Специальность</th>
+                    <th>Экзамен 1</th>
+                    <th>Экзамен 2</th>
+                    <th>Экзамен 3</th>
+                    <th>Инд.достижение 1</th>
+                    <th>Инд.достижение 2</th>
+                    <th>Сумма</th>
+                    <th class="no-sort"></th>
+                </tfoot>
+            </table>
+        </div>
+    <!-- List End -->
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        (function () {
+            var updateButton =
+                document.getElementById('updateDetails');
+            var cancelButton =
+                document.getElementById('cancel');
+            var favDialog =
+                document.getElementById('favDialog');
+
+            // Update button opens a modal dialog
+            updateButton.addEventListener('click', function () {
+                favDialog.showModal();
+            });
+
+            // Form cancel button closes the dialog box
+            cancelButton.addEventListener('click', function () {
+                favDialog.close();
+            });
+        })();
+    </script>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    АбитурЛист
+{% endblock %}
+
+{% block content %}
+    <!-- Carousel Start -->
+            <div class="header-carousel owl-carousel">
+                <div class="header-carousel-item">
+                    <img src="{{ url_for('static', filename='img/carousel-1.jpg') }}" class="img-fluid w-100" alt="Image">
+                    <div class="carousel-caption">
+                        <div class="carousel-caption-content p-3">
+                            <h1 class="display-1 text-capitalize text-white mb-4">Никакой воды</h1>
+                            <p class="mb-5 fs-5">На сайте есть вся необходимая информация для абитуриента.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-carousel-item">
+                    <img src="{{ url_for('static', filename='img/carousel-2.jpg') }}" class="img-fluid w-100" alt="Image">
+                    <div class="carousel-caption">
+                        <div class="carousel-caption-content p-3">
+                            <h1 class="display-1 text-capitalize text-white mb-4">Удобный просмотр</h1>
+                            <p class="mb-5 fs-5">Сокращённая информация об абитуриентах с возможностью сортировки и поиска
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-carousel-item">
+                    <img src="{{ url_for('static', filename='img/carousel-3.jpg') }}" class="img-fluid w-100" alt="Image">
+                    <div class="carousel-caption">
+                        <div class="carousel-caption-content p-3">
+                            <h1 class="display-1 text-capitalize text-white mb-4">Фиксирование информации</h1>
+                            <p class="mb-5 fs-5 animated slideInDown">Приведение таблицы к нужному формату и сохранение в формате .xlsx и .pdf
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Carousel End -->
+        </div>
+        <!-- Navbar & Hero End -->
+
+
+        <!-- Services Start -->
+        <div class="container-fluid service py-5">
+            <div class="container py-5">
+                <div class="section-title mb-5 wow fadeInUp" data-wow-delay="0.2s">
+                    <div class="sub-style">
+                        <h4 class="sub-title px-3 mb-0">Куда поступать ?</h4>
+                    </div>
+                    <h1 class="display-3 mb-4">Список факультетов</h1>
+                    <p class="mb-0">Набор факультетов в УлГТУ, на которых можно получить
+                        определённые специальности из утвержденного. При просмотре этого
+                        перечня Вы возможно определитесь с направлением, в котором планируете
+                        обучаться. Если имеются трудности, советуем пройти тесты на профориентацию,
+                        которые можно найти в интернете.
+                    </p>
+                </div>
+                <div class="row g-4 justify-content-center">
+                    {% for faculty in faculties %}
+                        <div class="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="service-item rounded">
+                               <div class="service-img rounded-top">
+                                    <img src="img/service-1.jpg" class="img-fluid rounded-top w-100" alt="">
+                               </div>
+                                <div class="service-content rounded-bottom bg-light p-4">
+                                    <div class="service-content-inner">
+                                        <h5 class="mb-4">{{ faculty.name }}</h5>
+                                        <a href="{{ faculty.site_link }}" class="btn btn-primary rounded-pill text-white py-2 px-4 mb-2" target="_blank">Сайт</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="col-12 text-center wow fadeInUp" data-wow-delay="0.2s">
+                        <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="{{ url_for('faculties') }}">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Services End -->
+{% endblock %}

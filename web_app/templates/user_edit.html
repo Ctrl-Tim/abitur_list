@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if current_user.id == 1 and current_user.email != email %}
+        Редактирование пользователя {{ lastname }} {{ surname }}
+    {% else %}
+        Редактирование своего пользователя
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+<!-- Header Start -->
+        <div class="container-fluid bg-breadcrumb">
+            <div class="container text-center py-5" style="max-width: 900px;">
+                <h3 class="text-white display-3 mb-4 wow fadeInDown" data-wow-delay="0.1s">Пользователи</h1>
+                <ol class="breadcrumb justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                    <li class="breadcrumb-item active text-primary"><a href="{{ url_for('users') }}">Вернуться к списку пользователей</a></li>
+                </ol>
+            </div>
+        </div>
+        <!-- Header End -->
+
+
+        <!-- Book Appointment Start -->
+        <div class="container-fluid appointment py-5">
+            <div class="container py-5">
+                <div class="row g-5 align-items-center">
+                    <div class="col-lg-12 wow fadeInRight" data-wow-delay="0.4s">
+                        <div class="appointment-form rounded p-5">
+                            <p class="fs-4 text-uppercase text-primary">Редактирование пользователя</p>
+                            <form method="POST" enctype="multipart/form-data">
+                                <div class="row gy-3 gx-4">
+                                    {% if current_user.id == 1 %}
+                                        <div class="col-xl-12">
+                                            <input type="text" name="lastname" class="form-control py-3 border-primary bg-transparent text-black" placeholder="Фамилия" value="{{ lastname }}" required>
+                                        </div>
+                                        <div class="col-xl-12">
+                                            <input type="text" name="surname" class="form-control py-3 border-primary bg-transparent text-black" placeholder="Имя" value="{{ surname }}" required>
+                                        </div>
+                                        <div class="col-xl-12">
+                                            <input type="text" name="patronymic" class="form-control py-3 border-primary bg-transparent text-black" placeholder="Отчество (при наличии)" value="{{ patronymic }}">
+                                        </div>
+                                    {% endif %}
+                                    <div class="col-xl-12">
+                                        <input type="email" name="email" class="form-control py-3 border-primary bg-transparent text-black" placeholder="Email" value="{{ email }}" required>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <input type="phone" name="telephone" class="form-control py-3 border-primary bg-transparent text-black" placeholder="Телефон" value="{{ telephone }}" required>
+                                    </div>
+                                    {% if current_user.id == 1 %}
+                                        <div class="col-xl-12">
+                                            <input type="password" name="new_password" class="form-control py-3 border-primary bg-transparent text-black" placeholder="Новый пароль">
+                                        </div>
+                                        <div class="col-xl-12">
+                                            <input type="password" name="new_password2" class="form-control py-3 border-primary bg-transparent text-black" placeholder="Повторите новый пароль">
+                                        </div>
+                                    {% endif %}
+                                    <label>Фотография пользователя
+                                      <input type="file" name="avatar" accept="image/png, image/gif, image/jpeg" class="form-control py-3 border-primary"/>
+                                    </label>
+                                    {% with messages = get_flashed_messages() %}
+                                      {% if messages %}
+                                        <ul class=flashes>
+                                        {% for message in messages %}
+                                          <li style="color:red">{{ message }}</li>
+                                        {% endfor %}
+                                        </ul>
+                                      {% endif %}
+                                    {% endwith %}
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary text-white w-100 py-3 px-5">Сохранить</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- Book Appointment End -->
+{% endblock %}

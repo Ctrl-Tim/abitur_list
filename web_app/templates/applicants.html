@@ -25,7 +25,7 @@
                 </div>
                 {% if current_user.is_authenticated %}
                     <div class="col-12 text-center wow fadeInUp" data-wow-delay="0.2s">
-                        <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="">Добавить пользователя</a>
+                        <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="{{ url_for('applicant_add') }}">Добавить абитуриента</a>
                     </div>
                 {% endif %}
             </div>
@@ -49,39 +49,84 @@
                           <td style="color:blue">{{ a.id }}</td>
                           <td style="color:black"><b>{{ a.fullname }}</b></td>
                           <td><b>{{ a.specialty.faculty.name }}</b></td>
-                          <td>{{ a.specialty.name }}</td>
+                          <td>{{ a.specialty.name }} (профиль «{{ a.specialty.profile }}»)</td>
                           <td style="color:green">{{ a.ege1 }}</td>
                           <td style="color:green">{{ a.ege2 }}</td>
                           <td style="color:green">{{ a.ege3 }}</td>
                           <td style="color:purple">{{ a.individualachievements1.score }}</td>
                           <td style="color:purple">{{ a.individualachievements2.score }}</td>
-                          <td style="color:orange"><b>{{ a.ege1 + a.ege2 + a.ege3 + a.individualachievements1.score|int }}</b></td>
+                          {% if a.individualachievements1 and not a.individualachievements2 %}
+                            <td style="color:orange"><b>{{ a.ege1 + a.ege2 + a.ege3 + a.individualachievements1.score|int }}</b></td>
+                          {% elif a.individualachievements2 and not a.individualachievements1 %}
+                            <td style="color:orange"><b>{{ a.ege1 + a.ege2 + a.ege3 + a.individualachievements2.score|int }}</b></td>
+                          {% elif a.individualachievements1 and a.individualachievements2 %}
+                            <td style="color:orange"><b>{{ a.ege1 + a.ege2 + a.ege3 + a.individualachievements1.score + a.individualachievements2.score }}</b></td>
+                          {% else %}
+                            <td style="color:orange"><b>{{ a.ege1 + a.ege2 + a.ege3 }}</b></td>
+                          {% endif %}
                           <td>
                               {% if current_user.is_authenticated %}
-                                    <dialog id="favDialog">
+                                    <dialog id="favDialog{{a.id}}">
                                         <form method="dialog">
                                             <section>
                                                 <p>
-                                                    <label for="favAnimal"
-                                                        >Favorite animal:</label
-                                                    >
-                                                    <select id="favAnimal">
-                                                        <option></option>
-                                                        <option>Brine shrimp</option>
-                                                        <option>Red panda</option>
-                                                        <option>Spider monkey</option>
+                                                    <label for="fullname">ФИО:</label>
+                                                    <input type="text" id="fullname" value="{{ a.fullname }}" required></p>
+                                                <p>
+                                                    <label for="faculties">Факультет:</label>
+                                                    <select id="faculties" name="faculties" onchange="faculty_id_click()">
+                                                        {% for f in faculties %}
+                                                            <option value="{{ f.id }}">{{ f.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </p>
+                                                <p>
+                                                    <label for="specialties">Специальность:</label>
+                                                    <select id="specialties" name="specialties">
+                                                        <option value="0">—</option>
+                                                        {% for s in specialties %}
+                                                            <option value="{{ s.faculty.id }}" style="display:none">{{ s.name }} (профиль «{{ s.profile }}»)</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </p>
+                                                <p>
+                                                    <label for="ege1">ЕГЭ (1):</label>
+                                                    <input type="number" id="ege1" name="tentacles" min="10" max="100" value="10"/>
+                                                </p>
+                                                <p>
+                                                    <label for="ege2">ЕГЭ (2):</label>
+                                                    <input type="number" id="ege2" name="tentacles" min="10" max="100" value="10"/>
+                                                </p>
+                                                <p>
+                                                    <label for="ege3">ЕГЭ (3):</label>
+                                                    <input type="number" id="ege3" name="tentacles" min="10" max="100" value="10"/>
+                                                </p>
+                                                <p>
+                                                    <label for="individual1">Индивидуальное достижение (1):</label>
+                                                    <select id="individual1">
+                                                        <option>—</option>
+                                                        {% for i in ia %}
+                                                            <option id="{{ i.id }}">+{{i.score}} {{ i.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </p>
+                                                <p>
+                                                    <label for="individual2">Индивидуальное достижение (2):</label>
+                                                    <select id="individual2">
+                                                        <option>—</option>
+                                                        {% for i in ia %}
+                                                            <option id="{{ i.id }}">+{{i.score}} {{ i.name }}</option>
+                                                        {% endfor %}
                                                     </select>
                                                 </p>
                                             </section>
                                             <menu>
-                                                <button id="cancel" type="reset">Cancel</button>
-                                                <button type="submit">Confirm</button>
+                                                <button id="updateDetails{{a.id}}" type="submit">Сохранить</button>
+                                                <button id="cancel{{a.id}}" type="reset">Закрыть</button>
                                             </menu>
                                         </form>
                                     </dialog>
-                                  <a href="#" id="updateDetails"><i class="fas fa-edit"></i></a>
-
-
+                                  <a href="{{ url_for('applicant_edit', a_id=a.id) }}" id="{{ a.id }}" class="edit"><i class="fas fa-edit"></i></a>
                                   <a href="{{ url_for('applicant_delete', a_id=a.id) }}"><i class="fa fa-trash" aria-hidden="true" style="color: #ff0000;"></i></a>
                               {% endif %}
                           </td>
@@ -108,24 +153,23 @@
 {% endblock %}
 
 {% block javascript %}
-    <script>
-        (function () {
-            var updateButton =
-                document.getElementById('updateDetails');
-            var cancelButton =
-                document.getElementById('cancel');
-            var favDialog =
-                document.getElementById('favDialog');
+<!--    <script>-->
+<!--        const elements = document.querySelectorAll('a.edit');-->
+<!--        elements.forEach((element) => {-->
+<!--            element.addEventListener('click', function(event) {-->
+<!--                event.preventDefault();-->
+<!--                var updateButton = document.getElementById('updateDetails' + element.id);-->
+<!--                var cancelButton = document.getElementById('cancel' + element.id);-->
+<!--                var favDialog = document.getElementById('favDialog' + element.id);-->
 
-            // Update button opens a modal dialog
-            updateButton.addEventListener('click', function () {
-                favDialog.showModal();
-            });
+<!--                updateButton.addEventListener('click', function () {-->
+<!--                    favDialog.showModal();-->
+<!--                });-->
 
-            // Form cancel button closes the dialog box
-            cancelButton.addEventListener('click', function () {
-                favDialog.close();
-            });
-        })();
-    </script>
+<!--                cancelButton.addEventListener('click', function () {-->
+<!--                    favDialog.close();-->
+<!--                });-->
+<!--            });-->
+<!--        });-->
+<!--    </script>-->
 {% endblock %}

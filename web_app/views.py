@@ -206,6 +206,105 @@ def applicants():
     applicants = Applicant.query.all()
     return render_template('applicants.html', applicants=applicants)
 
+@app.route('/applicants/add', methods=['GET', 'POST'])
+def applicant_add():
+    faculties = Faculty.query.all()
+    specialties = Specialty.query.all()
+    ia = IndividualAchievements.query.all()
+
+    if request.method == 'POST':
+        fullname = request.form.get('fullname')
+        faculty_id = int(request.form.get('faculties'))
+        specialty_id = int(request.form.get('specialties'))
+        ege1 = int(request.form.get('ege1'))
+        ege2 = int(request.form.get('ege2'))
+        ege3 = int(request.form.get('ege3'))
+        individual1 = int(request.form.get('individual1'))
+        individual2 = int(request.form.get('individual2'))
+
+        errors = False
+
+        if not Specialty.query.filter_by(id=specialty_id).first():
+            errors = True
+            flash("Выберите специальность!")
+
+        if Applicant.query.filter_by(fullname=fullname, ege1=ege1, ege2=ege2, ege3=ege3, specialty_id=specialty_id).first():
+            errors = True
+            flash("Такая запись уже существует!")
+
+        if errors:
+            return render_template('applicant_add.html', faculties=faculties, specialties=specialties, ia=ia,
+                                   fullname=fullname, ege1=ege1, ege2=ege2, ege3=ege3, individual1=individual1, individual2=individual2,
+                                   faculty_id=faculty_id, specialty_id=specialty_id)
+
+        new_applicant = Applicant(
+            fullname=fullname,
+            specialty_id=specialty_id,
+            ege1=ege1,
+            ege2=ege2,
+            ege3=ege3)
+        if individual1 != 0:
+            new_applicant.individualachievements1_id = individual1
+        if individual2 != 0:
+            new_applicant.individualachievements2_id = individual2
+        db.session.add(new_applicant)
+        db.session.commit()
+
+        return redirect(url_for('applicants'))
+
+    return render_template('applicant_add.html', faculties=faculties, specialties=specialties, ia=ia)
+
+@app.route('/applicants/<a_id>/edit', methods=['GET', 'POST'])
+def applicant_edit(a_id):
+    faculties = Faculty.query.all()
+    specialties = Specialty.query.all()
+    ia = IndividualAchievements.query.all()
+    select_applicant = Applicant.query.filter_by(id=int(a_id)).first()
+
+    if request.method == 'POST':
+        fullname = request.form.get('fullname')
+        specialty_id = int(request.form.get('specialties'))
+        ege1 = int(request.form.get('ege1'))
+        ege2 = int(request.form.get('ege2'))
+        ege3 = int(request.form.get('ege3'))
+        individual1 = int(request.form.get('individual1'))
+        individual2 = int(request.form.get('individual2'))
+
+        errors = False
+
+        if not Specialty.query.filter_by(id=specialty_id).first():
+            errors = True
+            flash("Выберите специальность!")
+
+        check = Applicant.query.filter_by(fullname=fullname, ege1=ege1, ege2=ege2, ege3=ege3, specialty_id=specialty_id).first()
+        if check.id != select_applicant.id:
+            errors = True
+            flash("Такая запись уже существует!")
+
+        if errors:
+            return redirect(url_for('applicant_edit', a_id=a_id))
+
+        if individual1 != 0:
+            select_applicant.individualachievements1_id = individual1
+        else:
+            select_applicant.individualachievements1_id = individual1
+        if individual2 != 0:
+            select_applicant.individualachievements2_id = individual2
+        else:
+            select_applicant.individualachievements2_id = individual2
+
+        select_applicant.fullname = fullname
+        select_applicant.specialty_id = specialty_id
+        select_applicant.ege1 = ege1
+        select_applicant.ege2 = ege2
+        select_applicant.ege3 = ege3
+
+        db.session.commit()
+
+        return redirect(url_for('applicants'))
+
+    return render_template('applicant_edit.html', faculties=faculties, specialties=specialties, ia=ia, applicant=select_applicant)
+
 @app.route('/applicants/delete/<a_id>', methods=['GET', 'POST'])
 @login_required
 def applicant_delete(a_id):

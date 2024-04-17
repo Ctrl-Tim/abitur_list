@@ -116,6 +116,13 @@ function copyString(e) {
     alertify.set('notifier','delay', delay);
 }
 
+function faculty_id_click() {
+    const selectedValue = document.getElementById("faculties").value;
+    const select2 = document.getElementById("specialties");
+    select2.value = 0;
+    Array.from(select2.options).forEach((node) => node.style.display = node.id === selectedValue ? "block": "none");
+}
+
 $(document).ready(function() {
     $('#table_results').DataTable({
         pagingType: 'simple_numbers',
